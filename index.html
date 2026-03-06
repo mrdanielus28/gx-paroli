@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>GX Vault | User Edition</title>
+    <style>
+        /* ... (Твои стили остаются такими же, как в предыдущем коде) ... */
+        .config-mode { color: var(--gx-red); font-size: 10px; cursor: pointer; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<script>
+    // ... (Логика входа и рендера) ...
+
+    // Добавляем логику для пользовательского пароля
+    function getWinPass() {
+        return localStorage.getItem('user_win_pass') || 'НЕ НАСТРОЕНО';
+    }
+
+    function setupWinPass() {
+        const pass = prompt("Введите ваш пароль от Windows для отображения (он сохранится только в вашем браузере):");
+        if(pass) {
+            localStorage.setItem('user_win_pass', pass);
+            document.getElementById('winDisplay').innerText = pass;
+        }
+    }
+
+    // Инициализация при запуске
+    function login() {
+        if(document.getElementById('mPass').value === MASTER) {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('main').classList.remove('hidden');
+            
+            // Загрузка пароля юзера
+            const savedPass = getWinPass();
+            document.getElementById('winDisplay').innerText = savedPass;
+            if(savedPass === 'НЕ НАСТРОЕНО') {
+                document.getElementById('winDisplay').innerHTML += ' <span class="config-mode" onclick="setupWinPass()">[Настроить]</span>';
+            }
+            render();
+        } else { alert("ACCESS DENIED"); }
+    }
+
+    // Добавляем выбор и удаление
+    function toggleSelect(index) {
+        const pos = selectedIndexes.indexOf(index);
+        if(pos === -1) selectedIndexes.push(index);
+        else selectedIndexes.splice(pos, 1);
+        render();
+    }
+
+    function deleteSelected() {
+        if(confirm("Удалить выбранные записи?")) {
+            let data = JSON.parse(localStorage.getItem('gx_vault_v3') || '[]');
+            data = data.filter((_, i) => !selectedIndexes.includes(i));
+            localStorage.setItem('gx_vault_v3', JSON.stringify(data));
+            selectedIndexes = [];
+            render();
+        }
+    }
+</script>
+</body>
+</html>
