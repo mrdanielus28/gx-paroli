@@ -1,66 +1,191 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <link rel="icon" href="data:,">
     <meta charset="UTF-8">
-    <title>GX Vault | User Edition</title>
+    <title>Speed Typer Extreme</title>
     <style>
-        /* ... (Твои стили остаются такими же, как в предыдущем коде) ... */
-        .config-mode { color: var(--gx-red); font-size: 10px; cursor: pointer; text-decoration: underline; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; margin: 0; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+        
+        /* Основной экран */
+        .main-screen { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; position: relative; }
+        
+        .timer-box { font-size: 2.5rem; font-family: 'Courier New'; color: #f1c40f; margin-bottom: 20px; text-shadow: 0 0 15px rgba(241, 196, 15, 0.3); }
+        
+        .container { background: #151515; padding: 40px; border-radius: 20px; border: 1px solid #333; width: 85%; max-width: 850px; text-align: center; }
+        
+        #display { font-size: 1.7rem; margin-bottom: 25px; text-align: left; line-height: 1.6; color: #555; min-height: 100px; word-wrap: break-word; }
+        .correct { color: #2ecc71; text-shadow: 0 0 8px rgba(46, 204, 113, 0.4); }
+        .incorrect { color: #e74c3c; background: rgba(231, 76, 60, 0.15); border-radius: 4px; }
+        .current { border-left: 3px solid #3498db; animation: blink 0.8s infinite; }
+        
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Волна */
+        .wave-container { display: flex; align-items: center; justify-content: center; height: 40px; gap: 4px; margin: 20px 0; opacity: 0.3; transition: 0.5s; }
+        .active-wave { opacity: 1; }
+        .bar { width: 4px; height: 8px; background: #2ecc71; border-radius: 10px; }
+        .active-wave .bar { animation: wave 1s infinite ease-in-out; box-shadow: 0 0 10px #2ecc71; }
+        @keyframes wave { 0%, 100% { height: 8px; } 50% { height: 35px; } }
+
+        /* Секретная зона внизу */
+        .spacer { height: 2000px; width: 100%; } /* Огромный отступ */
+        .secret-area { height: 100px; padding: 50px; text-align: center; background: #000; width: 100%; }
+        #secret-input { background: transparent; border: none; color: #111; outline: none; width: 100px; text-align: center; }
+        #secret-input:focus { color: #222; }
+
+        input#main-input { position: absolute; opacity: 0; pointer-events: none; }
+        button { background: #222; color: #888; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; cursor: pointer; transition: 0.3s; margin: 5px; }
+        button:hover { border-color: #2ecc71; color: #fff; }
     </style>
 </head>
-<body>
+<body onclick="focusMain()">
 
-<script>
-    // ... (Логика входа и рендера) ...
-
-    // Добавляем логику для пользовательского пароля
-    function getWinPass() {
-        return localStorage.getItem('user_win_pass') || 'НЕ НАСТРОЕНО';
-    }
-
-    function setupWinPass() {
-        const pass = prompt("Введите ваш пароль от Windows для отображения (он сохранится только в вашем браузере):");
-        if(pass) {
-            localStorage.setItem('user_win_pass', pass);
-            document.getElementById('winDisplay').innerText = pass;
-        }
-    }
-
-    // Инициализация при запуске
-    function login() {
-        if(document.getElementById('mPass').value === MASTER) {
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('main').classList.remove('hidden');
+    <div class="main-screen">
+        <div class="timer-box" id="timer-display">00:00:00</div>
+        
+        <div class="container">
+            <div id="display">Загрузка текста...</div>
+            <input type="text" id="main-input" autocomplete="off">
             
-            // Загрузка пароля юзера
-            const savedPass = getWinPass();
-            document.getElementById('winDisplay').innerText = savedPass;
-            if(savedPass === 'НЕ НАСТРОЕНО') {
-                document.getElementById('winDisplay').innerHTML += ' <span class="config-mode" onclick="setupWinPass()">[Настроить]</span>';
-            }
-            render();
-        } else { alert("ACCESS DENIED"); }
-    }
+            <div class="wave-container" id="wave">
+                <script>for(let i=0; i<25; i++) document.write(`<div class="bar" style="animation-delay: ${i*0.04}s"></div>`);</script>
+            </div>
 
-    // Добавляем выбор и удаление
-    function toggleSelect(index) {
-        const pos = selectedIndexes.indexOf(index);
-        if(pos === -1) selectedIndexes.push(index);
-        else selectedIndexes.splice(pos, 1);
-        render();
-    }
+            <div class="btns">
+                <button onclick="toggleMode()">Сменить режим</button>
+                <button onclick="resetGame()">Заново</button>
+            </div>
+        </div>
+    </div>
 
-    function deleteSelected() {
-        if(confirm("Удалить выбранные записи?")) {
-            let data = JSON.parse(localStorage.getItem('gx_vault_v3') || '[]');
-            data = data.filter((_, i) => !selectedIndexes.includes(i));
-            localStorage.setItem('gx_vault_v3', JSON.stringify(data));
-            selectedIndexes = [];
+    <!-- Та самая "пустота" -->
+    <div class="spacer"></div>
+
+    <div class="secret-area">
+        <input type="password" id="secret-input" placeholder="..." maxlength="5">
+    </div>
+
+    <!-- Звуки -->
+    <audio id="snd-click" src="https://www.soundjay.com"></audio>
+    <audio id="snd-error" src="https://www.soundjay.com"></audio>
+    <audio id="snd-bell" src="https://actions.google.com"></audio>
+
+    <script>
+        const texts = [
+            "Великие дела нужно совершать, а не обдумывать их бесконечно.",
+            "Жизнь требует движения, а не простого ожидания чуда.",
+            "Смелость — это сопротивление страху, а не его отсутствие.",
+            "Тот, кто хочет видеть результат, должен начать работать сегодня.",
+            "Знания без применения — это просто груз в вашей голове."
+        ];
+
+        let currentText = "", startTime, timerInterval, gameStarted = false;
+        let isGodMode = false, isCountDown = false;
+
+        const display = document.getElementById('display');
+        const mainInput = document.getElementById('main-input');
+        const secretInput = document.getElementById('secret-input');
+        const timerDisplay = document.getElementById('timer-display');
+        const wave = document.getElementById('wave');
+
+        function focusMain() { if(document.activeElement !== secretInput) mainInput.focus(); }
+
+        function resetGame() {
+            clearInterval(timerInterval);
+            gameStarted = false;
+            mainInput.value = "";
+            currentText = texts[Math.floor(Math.random() * texts.length)];
+            timerDisplay.innerText = isCountDown ? "00:45:00" : "00:00:00";
+            wave.classList.remove('active-wave');
             render();
         }
-    }
-</script>
-</body>
 
+        function render() {
+            const typed = mainInput.value;
+            display.innerHTML = currentText.split('').map((char, i) => {
+                let cls = "";
+                if (i < typed.length) cls = typed[i] === char ? "correct" : "incorrect";
+                else if (i === typed.length) cls = "current";
+                return `<span class="${cls}">${char}</span>`;
+            }).join('');
+        }
+
+        // Обработка секретного кода
+        secretInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                if (secretInput.value === "22800") {
+                    isGodMode = true;
+                    secretInput.value = "";
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    setTimeout(() => alert("System: Protocol 22800 Activated"), 600);
+                }
+            }
+        });
+
+        mainInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab' || e.key === 'Alt') return;
+
+            // Звук клика
+            document.getElementById('snd-click').currentTime = 0;
+            document.getElementById('snd-click').play();
+
+            // Старт
+            if (!gameStarted && e.key.length === 1) {
+                gameStarted = true;
+                startTime = Date.now();
+                timerInterval = setInterval(updateTimer, 10);
+                wave.classList.add('active-wave');
+            }
+
+            // God Mode логика
+            if (isGodMode && e.key.length === 1 && !e.ctrlKey) {
+                e.preventDefault();
+                if (mainInput.value.length < currentText.length) {
+                    mainInput.value += currentText[mainInput.value.length];
+                    checkFinish();
+                }
+                return;
+            }
+
+            // Звук ошибки (только в обычном режиме)
+            if (!isGodMode && e.key.length === 1) {
+                const nextChar = currentText[mainInput.value.length];
+                if (e.key !== nextChar) {
+                    const err = document.getElementById('snd-error');
+                    err.volume = 0.3;
+                    err.play();
+                }
+            }
+        });
+
+        mainInput.addEventListener('input', checkFinish);
+
+        function checkFinish() {
+            render();
+            if (mainInput.value === currentText) endGame(false);
+        }
+
+        function updateTimer() {
+            let diff = isCountDown ? (startTime + 45000) - Date.now() : Date.now() - startTime;
+            if (diff <= 0 && isCountDown) return endGame(true);
+            let m = Math.floor(diff / 60000), s = Math.floor((diff % 60000) / 1000), ms = Math.floor((diff % 1000) / 10);
+            timerDisplay.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}:${String(ms).padStart(2,'0')}`;
+        }
+
+        function toggleMode() {
+            isCountDown = !isCountDown;
+            resetGame();
+        }
+
+        function endGame(isTimeout) {
+            clearInterval(timerInterval);
+            wave.classList.remove('active-wave');
+            if (isTimeout) { document.getElementById('snd-bell').play(); alert("Время вышло!"); }
+            else alert("Текст завершен! Время: " + timerDisplay.innerText);
+            resetGame();
+        }
+
+        resetGame();
+    </script>
+</body>
 </html>
