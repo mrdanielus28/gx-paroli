@@ -2,162 +2,182 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Speed Typer Pro + Stats</title>
+    <title>Speed Typer Elite</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; margin: 0; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
-        .main-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding-top: 50px; width: 100%; }
-        .timer-box { font-size: 2.5rem; font-family: 'Courier New'; color: #f1c40f; margin-bottom: 20px; }
-        .container { background: #151515; padding: 30px; border-radius: 20px; border: 1px solid #333; width: 85%; max-width: 800px; text-align: center; }
-        #display { font-size: 1.5rem; margin-bottom: 20px; text-align: left; line-height: 1.5; color: #555; min-height: 80px; }
-        .correct { color: #2ecc71; }
-        .incorrect { color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; margin: 0; overflow-x: hidden; scroll-behavior: smooth; }
+        .main-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+        .timer-box { font-size: 3rem; font-family: 'Courier New'; color: #f1c40f; margin-bottom: 20px; text-shadow: 0 0 15px rgba(241, 196, 15, 0.4); }
+        .container { background: #151515; padding: 40px; border-radius: 25px; border: 1px solid #333; width: 85%; max-width: 850px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        #display { font-size: 1.8rem; margin-bottom: 25px; text-align: left; line-height: 1.6; color: #444; min-height: 100px; }
+        .correct { color: #2ecc71; text-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
+        .incorrect { color: #e74c3c; background: rgba(231, 76, 60, 0.1); border-radius: 5px; }
         .current { border-left: 3px solid #3498db; animation: blink 0.8s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* Вкладки */
-        .stats-container { margin-top: 30px; width: 85%; max-width: 800px; background: #151515; border-radius: 15px; border: 1px solid #333; overflow: hidden; }
-        .tabs { display: flex; background: #222; }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: none; color: #888; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .tab-btn.active { color: #2ecc71; background: #151515; border-bottom: 2px solid #2ecc71; }
-        .tab-content { padding: 20px; max-height: 300px; overflow-y: auto; text-align: left; font-size: 0.9rem; }
-        .stat-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; }
-        .stat-item:last-child { border: none; }
+        /* Вкладки статистики */
+        .stats-container { margin-top: 40px; width: 85%; max-width: 850px; background: #111; border-radius: 20px; border: 1px solid #222; overflow: hidden; }
+        .tabs { display: flex; background: #1a1a1a; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #555; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 1rem; }
+        .tab-btn.active { color: #2ecc71; background: #111; border-bottom: 3px solid #2ecc71; }
+        .tab-content { padding: 25px; max-height: 250px; overflow-y: auto; text-align: left; }
+        .stat-line { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-family: monospace; }
 
-        .spacer { height: 1500px; width: 100%; }
-        .secret-area { height: 100px; background: #000; display: flex; justify-content: center; align-items: center; }
-        #secret-input { background: transparent; border: none; color: #111; outline: none; width: 100px; }
-        input#main-input { position: absolute; opacity: 0; }
-        button.action-btn { background: #222; color: #888; border: 1px solid #444; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        /* Секретка */
+        .void { height: 3000px; background: linear-gradient(#0a0a0a, #000); }
+        .secret-gate { height: 200px; display: flex; align-items: center; justify-content: center; background: #000; }
+        #master-key { background: transparent; border: none; color: #050505; outline: none; font-size: 10px; width: 50px; }
+
+        input#main-typer { position: absolute; opacity: 0; }
+        .controls { margin-top: 25px; }
+        .btn { background: #222; color: #eee; border: 1px solid #444; padding: 12px 25px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-size: 1rem; }
+        .btn:hover { border-color: #2ecc71; background: #2a2a2a; }
     </style>
 </head>
-<body onclick="document.getElementById('main-input').focus()">
+<body onclick="document.getElementById('main-typer').focus()">
 
     <div class="main-screen">
         <div class="timer-box" id="timer-display">00:00:00</div>
         
         <div class="container">
-            <div id="display">Нажмите любую клавишу для старта...</div>
-            <input type="text" id="main-input" autocomplete="off">
-            <div class="btns">
-                <button class="action-btn" onclick="toggleMode()">Режим: <span id="mode-text">Секундомер</span></button>
-                <button class="action-btn" onclick="resetGame()">Заново</button>
+            <div id="display">Загрузка...</div>
+            <input type="text" id="main-typer" autocomplete="off">
+            <div class="controls">
+                <button class="btn" onclick="toggleMode()">Режим: <span id="mode-label">Секундомер</span></button>
+                <button class="btn" onclick="resetGame()">Заново</button>
             </div>
         </div>
 
         <div class="stats-container">
             <div class="tabs">
-                <button class="tab-btn active" onclick="showTab('records')">РЕКОРДЫ</button>
-                <button class="tab-btn" onclick="showTab('history')">ИСТОРИЯ</button>
+                <button class="tab-btn active" onclick="switchTab('records')">РЕКОРДЫ</button>
+                <button class="tab-btn" onclick="switchTab('history')">ИСТОРИЯ</button>
             </div>
             <div id="tab-records" class="tab-content"></div>
             <div id="tab-history" class="tab-content" style="display:none"></div>
         </div>
     </div>
 
-    <div class="spacer"></div>
-    <div class="secret-area"><input type="password" id="secret-input" maxlength="5"></div>
+    <!-- Огромная пустота, чтобы друг не догадался -->
+    <div class="void"></div>
 
-    <audio id="snd-click" src="https://www.soundjay.com"></audio>
-    <audio id="snd-error" src="https://www.soundjay.com"></audio>
+    <div class="secret-gate">
+        <input type="password" id="master-key" placeholder="system_lock" maxlength="5">
+    </div>
+
+    <audio id="click-s" src="https://www.soundjay.com"></audio>
+    <audio id="err-s" src="https://www.soundjay.com"></audio>
 
     <script>
-        const texts = ["Успех — это не финал, неудача — не фатальна.", "Будущее зависит от того, что вы делаете сегодня.", "Сложные дороги часто ведут к прекрасным местам.", "Важно не то, как быстро ты идешь, а то, что ты не останавливаешься."];
-        let currentText = "", startTime, timerInterval, gameStarted = false, isGodMode = false, isCountDown = false;
+        const texts = [
+            "Будущее принадлежит тем, кто верит в красоту своих мечтаний.",
+            "Сложные времена рождают сильных людей, сильные люди создают легкие времена.",
+            "Успех — это не отсутствие неудач, это умение идти через них с высоко поднятой головой.",
+            "Великие умы обсуждают идеи, средние умы обсуждают события, мелкие умы обсуждают людей."
+        ];
 
-        const mainInput = document.getElementById('main-input');
-        const timerDisplay = document.getElementById('timer-display');
+        let currentStr = "", startT, timerInt, active = false, god = false, countDn = false;
+
+        const typer = document.getElementById('main-typer');
+        const timerOut = document.getElementById('timer-display');
+        const key = document.getElementById('master-key');
 
         function resetGame() {
-            clearInterval(timerInterval);
-            gameStarted = false;
-            mainInput.value = "";
-            currentText = texts[Math.floor(Math.random() * texts.length)];
-            timerDisplay.innerText = isCountDown ? "00:45:00" : "00:00:00";
-            render();
-            updateStatsUI();
+            clearInterval(timerInt);
+            active = false;
+            typer.value = "";
+            currentStr = texts[Math.floor(Math.random() * texts.length)];
+            timerOut.innerText = countDn ? "00:45:00" : "00:00:00";
+            draw();
+            refreshStats();
         }
 
-        function render() {
-            const typed = mainInput.value;
-            document.getElementById('display').innerHTML = currentText.split('').map((char, i) => {
-                let cls = i < typed.length ? (typed[i] === char ? "correct" : "incorrect") : (i === typed.length ? "current" : "");
-                return `<span class="${cls}">${char}</span>`;
+        function draw() {
+            const val = typer.value;
+            document.getElementById('display').innerHTML = currentStr.split('').map((c, i) => {
+                let s = i < val.length ? (val[i] === c ? "correct" : "incorrect") : (i === val.length ? "current" : "");
+                return `<span class="${s}">${c}</span>`;
             }).join('');
         }
 
-        document.getElementById('secret-input').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && e.target.value === "22800") {
-                isGodMode = true;
-                e.target.value = "";
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Авто-фокус на секретку при скролле вниз
+        window.onscroll = () => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
+                key.focus();
+            }
+        };
+
+        key.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && key.value === "22800") {
+                god = true;
+                key.value = "";
+                window.scrollTo(0, 0); // Улетаем вверх
+                setTimeout(() => { typer.focus(); }, 600);
             }
         });
 
-        mainInput.addEventListener('keydown', (e) => {
+        typer.addEventListener('keydown', (e) => {
             if (e.key.length === 1) {
-                document.getElementById('snd-click').currentTime = 0;
-                document.getElementById('snd-click').play();
-                if (!gameStarted) {
-                    gameStarted = true;
-                    startTime = Date.now();
-                    timerInterval = setInterval(updateTimer, 10);
+                document.getElementById('click-s').currentTime = 0;
+                document.getElementById('click-s').play();
+                
+                if (!active) {
+                    active = true;
+                    startT = Date.now();
+                    timerInt = setInterval(tick, 10);
                 }
-                if (isGodMode) {
+
+                if (god) {
                     e.preventDefault();
-                    if (mainInput.value.length < currentText.length) {
-                        mainInput.value += currentText[mainInput.value.length];
-                        check();
+                    if (typer.value.length < currentStr.length) {
+                        typer.value += currentStr[typer.value.length];
+                        checkWin();
                     }
-                } else if (e.key !== currentText[mainInput.value.length]) {
-                    document.getElementById('snd-error').play();
+                } else if (e.key !== currentStr[typer.value.length]) {
+                    document.getElementById('err-s').play();
                 }
             }
         });
 
-        mainInput.addEventListener('input', check);
+        typer.addEventListener('input', checkWin);
 
-        function check() {
-            render();
-            if (mainInput.value === currentText) endGame();
+        function checkWin() {
+            draw();
+            if (typer.value === currentStr) {
+                clearInterval(timerInt);
+                save(timerOut.innerText);
+                alert("Готово! Твой результат: " + timerOut.innerText);
+                resetGame();
+            }
         }
 
-        function updateTimer() {
-            let diff = isCountDown ? (startTime + 45000) - Date.now() : Date.now() - startTime;
-            if (diff <= 0 && isCountDown) return endGame(true);
-            let m = Math.floor(diff / 60000), s = Math.floor((diff % 60000) / 1000), ms = Math.floor((diff % 1000) / 10);
-            timerDisplay.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}:${String(ms).padStart(2,'0')}`;
+        function tick() {
+            let d = countDn ? (startT + 45000) - Date.now() : Date.now() - startT;
+            if (d <= 0 && countDn) { clearInterval(timerInt); alert("Время вышло!"); resetGame(); return; }
+            let m = Math.floor(d / 60000), s = Math.floor((d % 60000) / 1000), ms = Math.floor((d % 1000) / 10);
+            timerOut.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}:${String(ms).padStart(2,'0')}`;
         }
 
-        function endGame() {
-            clearInterval(timerInterval);
-            saveResult(timerDisplay.innerText);
-            alert("Финиш! Время: " + timerDisplay.innerText);
-            resetGame();
+        function save(t) {
+            let h = JSON.parse(localStorage.getItem('scores') || '[]');
+            h.push({ t, raw: Date.now() - startT, d: new Date().toLocaleTimeString(), m: countDn ? 'DN' : 'UP' });
+            localStorage.setItem('scores', JSON.stringify(h));
+            refreshStats();
         }
 
-        function saveResult(timeStr) {
-            let results = JSON.parse(localStorage.getItem('typerResults') || '[]');
-            results.push({ time: timeStr, raw: Date.now() - startTime, date: new Date().toLocaleTimeString(), mode: isCountDown ? 'Отсчет' : 'Секунда' });
-            localStorage.setItem('typerResults', JSON.stringify(results));
-            updateStatsUI();
+        function refreshStats() {
+            let h = JSON.parse(localStorage.getItem('scores') || '[]');
+            document.getElementById('tab-history').innerHTML = h.slice().reverse().map(i => `<div class="stat-line"><span>${i.d}</span> <b>${i.t}</b></div>`).join('') || "Пусто";
+            document.getElementById('tab-records').innerHTML = h.sort((a,b) => a.raw - b.raw).slice(0, 5).map(i => `<div class="stat-line"><span>TOP</span> <b>${i.t}</b></div>`).join('') || "Нет рекордов";
         }
 
-        function updateStatsUI() {
-            let results = JSON.parse(localStorage.getItem('typerResults') || '[]');
-            const historyHTML = results.reverse().map(r => `<div class="stat-item"><span>${r.date} (${r.mode})</span> <b>${r.time}</b></div>`).join('');
-            const recordsHTML = results.sort((a, b) => a.raw - b.raw).slice(0, 5).map(r => `<div class="stat-item"><span>🏆</span> <b>${r.time}</b></div>`).join('');
-            document.getElementById('tab-history').innerHTML = historyHTML || "История пуста";
-            document.getElementById('tab-records').innerHTML = recordsHTML || "Рекордов пока нет";
-        }
-
-        function showTab(type) {
+        function switchTab(t) {
             document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('tab-' + type).style.display = 'block';
+            document.getElementById('tab-' + t).style.display = 'block';
             event.target.classList.add('active');
         }
 
-        function toggleMode() { isCountDown = !isCountDown; document.getElementById('mode-text').innerText = isCountDown ? "Отсчет" : "Секундомер"; resetGame(); }
+        function toggleMode() { countDn = !countDn; document.getElementById('mode-label').innerText = countDn ? "Отсчет" : "Секундомер"; resetGame(); }
 
         resetGame();
     </script>
